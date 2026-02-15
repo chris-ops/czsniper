@@ -48,8 +48,23 @@ impl EventHandler for Handler {
                 println!("[{}] 🔥 TRIGGER DETECTED: '{}' (Embed count: {})", now, msg.content, msg.embeds.len());
                 let _ = msg.channel_id.say(&ctx.http, "🐦 Tweet Monitor: Trigger Detected!").await;
             } else {
-                println!("[{}] [TweetMonitor] Message received: '{}' (len: {}, embeds: {})", now, msg.content, msg.content.len(), msg.embeds.len());
-                if msg.content.is_empty() && !msg.embeds.is_empty() {
+                let mut log_name = if !msg.content.is_empty() {
+                    msg.content.clone()
+                } else if let Some(first_embed) = msg.embeds.first() {
+                    first_embed.title.clone().unwrap_or_else(|| "Unknown Embed".to_string())
+                } else {
+                    "Empty Message".to_string()
+                };
+
+                // Truncate long content for cleaner terminal logs
+                if log_name.len() > 100 {
+                    log_name.truncate(97);
+                    log_name.push_str("...");
+                }
+
+                println!("[{}] [TweetMonitor] Ignored: '{}'", now, log_name);
+                
+                if msg.content.is_empty() && !msg.embeds.is_empty() && log_name == "Unknown Embed" {
                     for (i, embed) in msg.embeds.iter().enumerate() {
                         println!("[{}] [Diagnostic] Embed {} -> Title: {:?}, Desc: {:?}", 
                             now, i, embed.title, embed.description);

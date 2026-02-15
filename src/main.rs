@@ -80,9 +80,21 @@ impl EventHandler for Handler {
                 println!("[{}] ⏱️ 5-second buy window has closed.", now_close);
             });
         } else {
-            if !msg.content.is_empty() {
-                println!("[{}] [Debug] Message in monitored channel but did not match trigger: '{}'", now, msg.content);
+            let mut log_name = if !msg.content.is_empty() {
+                msg.content.clone()
+            } else if let Some(first_embed) = msg.embeds.first() {
+                first_embed.title.clone().unwrap_or_else(|| "Unknown Embed".to_string())
+            } else {
+                "Empty Message".to_string()
+            };
+
+            // Truncate long content for cleaner terminal logs
+            if log_name.len() > 100 {
+                log_name.truncate(97);
+                log_name.push_str("...");
             }
+
+            println!("[{}] [Debug] Ignored: '{}'", now, log_name);
         }
     }
 
