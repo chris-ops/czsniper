@@ -124,7 +124,7 @@ pub async fn execute_swap(token_address_str: &str) -> Result<()> {
     let nonce = provider.get_transaction_count(signer.address()).await?;
 
     // 2. Get Gas Price
-    let gas_price = 20_000_000_000u128; // Fixed 20 Gwei
+    let gas_price = 80_000_000_000u128; // Fixed 80 Gwei
     
     // 3. Construct a raw Legacy Transaction (simplest for BSC)
     let mut tx = TxLegacy {
