@@ -40,7 +40,7 @@ sol!(
 );
 
 pub async fn simulate_swap(token_address_str: &str) -> Result<()> {
-    let rpc_url = env::var("BSC_RPC_URL")?.parse()?;
+    let rpc_url = env::var("BSC_RPC_URL")?;
     let private_key = env::var("PRIVATE_KEY")?;
     let buy_amount_bnb = env::var("BUY_AMOUNT_BNB")?.parse::<f64>()?;
     let router_address_str = env::var("PANCAKE_ROUTER")?;
@@ -53,7 +53,8 @@ pub async fn simulate_swap(token_address_str: &str) -> Result<()> {
     let provider = ProviderBuilder::new()
         .with_recommended_fillers()
         .wallet(wallet)
-        .on_http(rpc_url);
+        .on_builtin(&rpc_url)
+        .await?;
 
     let funds = U256::from((buy_amount_bnb * 1e18) as u64);
     
@@ -95,7 +96,7 @@ pub async fn simulate_swap(token_address_str: &str) -> Result<()> {
 }
 
 pub async fn execute_swap(token_address_str: &str) -> Result<()> {
-    let rpc_url = env::var("BSC_RPC_URL")?.parse()?;
+    let rpc_url = env::var("BSC_RPC_URL")?;
     let private_key = env::var("PRIVATE_KEY")?;
     let buy_amount_bnb = env::var("BUY_AMOUNT_BNB")?.parse::<f64>()?;
     let router_address_str = env::var("PANCAKE_ROUTER")?;
@@ -108,7 +109,8 @@ pub async fn execute_swap(token_address_str: &str) -> Result<()> {
     let provider = ProviderBuilder::new()
         .with_recommended_fillers()
         .wallet(wallet)
-        .on_http(rpc_url);
+        .on_builtin(&rpc_url)
+        .await?;
 
     let funds = U256::from((buy_amount_bnb * 1e18) as u64);
     
