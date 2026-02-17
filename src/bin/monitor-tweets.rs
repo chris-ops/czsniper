@@ -22,21 +22,22 @@ impl EventHandler for Handler {
         
         // Log every message in the monitored channel
         if msg.channel_id.get() == state.channel_id {
-            // Check content and embeds
-            let mut trigger_found = msg.content == "New Tweet from @cz_binance";
+            // Check if message content OR any embed contains the triggers
+            let triggers = ["New Tweet from @cz_binance", "New Tweet from @Scratch_XOX"];
+            let mut trigger_found = triggers.iter().any(|&t| msg.content == t);
             
             if !trigger_found {
                 for (i, embed) in msg.embeds.iter().enumerate() {
                     if let Some(desc) = &embed.description {
-                        if desc.contains("New Tweet from @cz_binance") {
-                            println!("[{}] [Info] Found trigger in embed {} description", now, i);
+                        if let Some(matched) = triggers.iter().find(|&t| desc.contains(t)) {
+                            println!("[{}] [Info] Found trigger '{}' in embed {} description", now, matched, i);
                             trigger_found = true;
                             break;
                         }
                     }
                     if let Some(title) = &embed.title {
-                        if title.contains("New Tweet from @cz_binance") {
-                            println!("[{}] [Info] Found trigger in embed {} title", now, i);
+                        if let Some(matched) = triggers.iter().find(|&t| title.contains(t)) {
+                            println!("[{}] [Info] Found trigger '{}' in embed {} title", now, matched, i);
                             trigger_found = true;
                             break;
                         }

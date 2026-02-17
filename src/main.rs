@@ -29,19 +29,20 @@ impl EventHandler for Handler {
             return;
         }
 
-        // Check if message content OR any embed contains the trigger
-        let mut trigger_found = msg.content == "New Tweet from @cz_binance";
+        // Check if message content OR any embed contains the triggers
+        let triggers = ["New Tweet from @cz_binance", "New Tweet from @Scratch_XOX"];
+        let mut trigger_found = triggers.iter().any(|&t| msg.content == t);
         
         if !trigger_found {
             for embed in &msg.embeds {
                 if let Some(desc) = &embed.description {
-                    if desc.contains("New Tweet from @cz_binance") {
+                    if triggers.iter().any(|&t| desc.contains(t)) {
                         trigger_found = true;
                         break;
                     }
                 }
                 if let Some(title) = &embed.title {
-                    if title.contains("New Tweet from @cz_binance") {
+                    if triggers.iter().any(|&t| title.contains(t)) {
                         trigger_found = true;
                         break;
                     }
