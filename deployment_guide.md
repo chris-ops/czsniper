@@ -48,7 +48,7 @@ sudo yum install openssl-devel
    Type=simple
    User=root
    WorkingDirectory=/root/czsniper
-   ExecStart=/root/czsniper/target/debug/bsc-discord-sniper
+   ExecStart=/root/czsniper/target/release/bsc-discord-sniper
    Restart=always
    RestartSec=5
    Environment=RUST_LOG=info

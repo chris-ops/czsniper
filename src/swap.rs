@@ -137,7 +137,7 @@ pub async fn execute_swap(token_address_str: &str) -> Result<()> {
         input: Bytes::from(calldata),
     };
 
-    println!("Signing raw transaction...");
+    println!("Signing raw transaction with {} Gwei gas price (Nonce: {}, Gas Limit: {})", gas_price as f64 / 1e9, nonce, tx.gas_limit);
     // 4. Sign the transaction using the PrivateKeySigner directly
     let signature = signer.sign_transaction(&mut tx).await?;
     
@@ -146,7 +146,7 @@ pub async fn execute_swap(token_address_str: &str) -> Result<()> {
     let envelope = TxEnvelope::Legacy(signed_tx);
     let signed_tx_hex = format!("0x{}", hex::encode(envelope.encoded_2718()));
 
-    println!("Broadcasting raw transaction...");
+    println!("Broadcasting raw transaction... Hex length: {}", signed_tx_hex.len());
 
     // 6. Broadcast via raw JSON-RPC
     match provider.raw_request::<_, B256>("eth_sendRawTransaction".into(), vec![signed_tx_hex]).await {
