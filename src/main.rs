@@ -31,22 +31,33 @@ impl EventHandler for Handler {
 
         // Check if message content OR any embed contains the triggers
         let triggers = ["New Tweet from @cz_binance", "New Tweet from @Scratch_XOX"];
-        let mut trigger_found = triggers.iter().any(|&t| msg.content == t);
+        let keywords = ["book", "publish", "release"];
         
-        if !trigger_found {
+        let mut account_matched = triggers.iter().any(|&t| msg.content == t);
+        let mut content_to_search = msg.content.to_lowercase();
+        
+        if !account_matched {
             for embed in &msg.embeds {
                 if let Some(desc) = &embed.description {
                     if triggers.iter().any(|&t| desc.contains(t)) {
-                        trigger_found = true;
-                        break;
+                        account_matched = true;
+                        content_to_search.push_str(&desc.to_lowercase());
                     }
                 }
                 if let Some(title) = &embed.title {
                     if triggers.iter().any(|&t| title.contains(t)) {
-                        trigger_found = true;
-                        break;
+                        account_matched = true;
+                        content_to_search.push_str(&title.to_lowercase());
                     }
                 }
+            }
+        }
+
+        // Only trigger if account matched AND one of the keywords is found
+        let mut trigger_found = false;
+        if account_matched {
+            if keywords.iter().any(|&k| content_to_search.contains(k)) {
+                trigger_found = true;
             }
         }
 

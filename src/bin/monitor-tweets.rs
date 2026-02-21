@@ -24,30 +24,50 @@ impl EventHandler for Handler {
         if msg.channel_id.get() == state.channel_id {
             // Check if message content OR any embed contains the triggers
             let triggers = ["New Tweet from @cz_binance", "New Tweet from @Scratch_XOX"];
-            let mut trigger_found = triggers.iter().any(|&t| msg.content == t);
+            let keywords = ["book", "publish", "release"];
             
-            if !trigger_found {
+            let mut account_matched = triggers.iter().any(|&t| msg.content == t);
+            let mut content_to_search = msg.content.to_lowercase();
+            let mut matched_account = None;
+
+            if account_matched {
+                matched_account = triggers.iter().find(|&t| msg.content == *t).map(|&s| s);
+            }
+            
+            if !account_matched {
                 for (i, embed) in msg.embeds.iter().enumerate() {
                     if let Some(desc) = &embed.description {
                         if let Some(matched) = triggers.iter().find(|&t| desc.contains(t)) {
                             println!("[{}] [Info] Found trigger '{}' in embed {} description", now, matched, i);
-                            trigger_found = true;
-                            break;
+                            account_matched = true;
+                            matched_account = Some(matched);
+                            content_to_search.push_str(&desc.to_lowercase());
                         }
                     }
                     if let Some(title) = &embed.title {
                         if let Some(matched) = triggers.iter().find(|&t| title.contains(t)) {
                             println!("[{}] [Info] Found trigger '{}' in embed {} title", now, matched, i);
-                            trigger_found = true;
-                            break;
+                            account_matched = true;
+                            matched_account = Some(matched);
+                            content_to_search.push_str(&title.to_lowercase());
                         }
                     }
                 }
             }
 
+            let mut trigger_found = false;
+            let mut matched_keyword = None;
+            if account_matched {
+                if let Some(keyword) = keywords.iter().find(|&k| content_to_search.contains(k)) {
+                    trigger_found = true;
+                    matched_keyword = Some(*keyword);
+                }
+            }
+
             if trigger_found {
-                println!("[{}] 🔥 TRIGGER DETECTED: '{}' (Embed count: {})", now, msg.content, msg.embeds.len());
-                let _ = msg.channel_id.say(&ctx.http, "🐦 Tweet Monitor: Trigger Detected!").await;
+                println!("[{}] 🔥 TRIGGER DETECTED: '{}' | Keyword: '{}' (Embed count: {})", 
+                    now, matched_account.unwrap_or("Unknown"), matched_keyword.unwrap_or("None"), msg.embeds.len());
+                let _ = msg.channel_id.say(&ctx.http, format!("🐦 Tweet Monitor: Trigger Detected! Keyword: {}", matched_keyword.unwrap_or("None"))).await;
             } else {
                 let mut log_name = if !msg.content.is_empty() {
                     msg.content.clone()
